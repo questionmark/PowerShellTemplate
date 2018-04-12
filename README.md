@@ -36,7 +36,7 @@ ConvertFrom-FunctionFile -Path ~\Git\RefactorProject\SomeScript.ps1 -ModulePath 
 
 ### Classes and Initialization
 
-Classes, enums, and other module prerequisites should be placed in the classes folder. We name these with a digit-prefix (e.g. `00-init.ps1`, `10-ClassDependency.ps1`, `20-SampleClass.ps1`, etc), such that they can be prioritised appropriately and will be added in order at the top of the resultant psm1 file.
+Classes, enums, and other module prerequisites should be placed in the classes folder. We name these with a digit-prefix (e.g. `00-init.ps1`, `10-ClassDependency.ps1`, `20-SampleClass.ps1`, etc), such that they can be prioritized appropriately and will be added in order at the top of the resultant psm1 file.
 
 ## Writing PowerShell Modules
 
@@ -51,7 +51,7 @@ Formatting:
 - Use [One True Brace Style](https://en.wikipedia.org/wiki/Indent_style#Variant:_1TBS_.28OTBS.29)
 - Use [Pascal Casing](https://en.wikipedia.org/wiki/PascalCase) unless PowerShell has a previously established case (e.g. $env:USERNAME)
 - Use 4-space indentation
-- If there is more than one parameter, named parameters should be used instead of positional parameters 
+- If there is more than one parameter, named parameters should be used instead of positional parameters
   (e.g. `Register-PSRepository -Name Test -SourceLocation C:\Temp` instead of `Register-PSRepository Test C:\Temp`)
 - Aliases must not be used, instead expanded to the full command name
 - Functions must have valid comment-based help, including (at minimum) a synopsis, parameter help, and working examples
@@ -215,11 +215,13 @@ Compress-Archive -Path $Module.FullName -DestinationPath ("$($env:Build_StagingD
 Creating an installable nupkg is more involved. We recommend registering a local package source temporarily, and using the PowerShellGet `Publish-Module` function to create the nupkg there.
 
 ```PowerShell
+#Requires -Modules PackageManagement, PowerShellGet
+
 $RepoName = (New-Guid).Guid
 $Location = $($env:Build_BinariesDirectory)
 
 if (-not [bool](Get-PackageSource -Location $Location)) {
-  Register-PackageSource -Name $RepoName -Location $Location -ProviderName PowerShellGet
+    Register-PackageSource -Name $RepoName -Location $Location -ProviderName PowerShellGet
 }
 
 [IO.DirectoryInfo]$Module = $($env:Build_StagingDirectory)\$ModuleName
