@@ -6,7 +6,7 @@ This is an example module, following some good practices.
 
 ### Creating a New Module
 
-To build this module, run `Optimize-Module` on the module directory.  # TODO: link to [publicly available version?](https://gist.github.com/Jaykul/176c4aacc477a69b3d0fa86b4229503b#file-optimize-module-ps1) <- missing update-metadata / get-metadata
+To build this module, run `Optimize-Module` on the module directory.
 
 You should then be able to import the module, and run `New-PSModule` which clones the base structure of an example module.
 
@@ -86,7 +86,7 @@ I/O:
       \--ModuleName.Test.ps1    # Module level tests, including ScriptAnalyzer
    |--build.psd1                # PSD1 containing arguments for Optimize-Module
    |--ModuleName.psd1           # PSD1 containing module data
-   |--README.md                 # A readme, containing useful information about the purpose and running of the module
+   \--README.md                 # A readme, containing useful information about the module
 ```
 
 ## Testing PowerShell Modules
@@ -96,6 +96,25 @@ Forge uses Pester for PowerShell unit-testing.
 At a minimum, each function must have tests for every ParameterSet, and the module should run the shared ScriptAnalyzer tests.
 
 ## Building PowerShell Modules
+
+### vNext Build Variables
+
+vNext builds support lots of predefined variables in build tasks. 
+
+Use of these variables varies between build task settings and PowerShell environments.
+
+|          vNext Build           |      PowerShell Environment      |                     Notes                      |
+| ------------------------------ | -------------------------------- | ---------------------------------------------- |
+| $(Build.SourcesDirectory)      | $env:Build_SourcesDirectory      | Location of files downloaded in Get sources    |
+| $(Build.BuildDefinitionName)   | $env:Build_BuildDefinitionName   | Name of the vNext build                        |
+| $(Build.BuildNumber)           | $env:Build_BuildNumber           | This is the build number set in Options        |
+| $(Build.StagingDirectory)      | $env:Build_StagingDirectory      | Synonymous with Build.ArtifactStagingDirectory |
+| $(Build.SourceBranch)          | $env:Build_SourceBranch          | Full source branch. Useful to see build type   |
+| $(Common.TestResultsDirectory) | $env:Common_TestResultsDirectory |                                                |
+
+Further information is available on [docs.microsoft.com](https://docs.microsoft.com/en-us/vsts/build-release/concepts/definitions/build/variables?tabs=batch&view=vsts)
+
+### Building the Module with vNext
 
 An example build is available in [Builds\Platform\PowerShellTemplate](https://qmdevteam.visualstudio.com/Core/Forge/_build/index?definitionId=1614).
 
@@ -110,9 +129,9 @@ Optimize-Module -Path $env:Build_SourcesDirectory -Destination $env:Build_Stagin
 Get-ChildItem $env:Build_StagingDirectory -Recurse | Add-QMSignatureToScript
 ```
 
-Forge has created a task group that handles this, titled `Build PowerShell Module`.
+Forge has created a task group that handles this, titled `Build PowerShell Module`. It contains a Build Module(s) and Sign step.
 
-### Unit Testing during Builds
+### Unit Testing during vNext Builds
 
 For this, you can either create a PowerShell script and run it from a script-step, or use the [Pester Test Runner Build Task](https://marketplace.visualstudio.com/items?itemName=richardfennellBM.BM-VSTS-PesterRunner-Task).
 
@@ -155,9 +174,9 @@ After adding the `Publish Test Results` build task, configure it as follows:
 | Search Folder      | $(Common.TestResultsDirectory)                                          |
 | Run this task      | Even if a previous task has failed, unless the deployment was cancelled |
 
-Forge has created a task group that handles this, titled `Test PowerShell Module`.
+Forge has created a task group that handles this, titled `Test PowerShell Module`. It contains a Pester Test Runner step, and separate Publish Test Result and Publish Code Coverage Result steps.
 
-### Code Coverage during Builds
+### Code Coverage during vNext Builds
 
 If running Pester 4.0.3 or higher, you can specify a CodeCoverageOutputFile, which you can then add to the build using the `Publish Code Coverage Result` build task.
 
@@ -180,7 +199,7 @@ To upload the file, you should then add the `Publish Code Coverage Result` step 
 
 ### Packaging Artifacts
 
-Forge has created a task group that handles these steps, titled `Publish PowerShell Module`.
+Forge has created a task group that handles these steps, titled `Publish PowerShell Module`. It packages the module, and publishes the zip to the build - only publishing the nupkg if it's a release branch.
 
 #### ZIP
 
@@ -197,7 +216,7 @@ Creating an installable nupkg is more involved. We recommend registering a local
 
 ```PowerShell
 $RepoName = (New-Guid).Guid
-$Location = "$($env:Temp)\$RepoName"
+$Location = $($env:Build_BinariesDirectory)
 
 if (-not [bool](Get-PackageSource -Location $Location)) {
   Register-PackageSource -Name $RepoName -Location $Location -ProviderName PowerShellGet
@@ -221,7 +240,21 @@ Configure it with the following options:
 | Artifact Name             | Module                                        |
 | Artifact publish location | Visual Studio Team Services/TFS               |
 
-You can, alternatively, configure this to publish to a file share.
+You can also configure this to publish to a file share by changing the `Artifact publish location`.
 
 ### Publishing to Nuget Feed
 
+To publish NUPKG files to a release feed from a VSTS build, we suggest using the `NuGet` build task.
+
+| Setting                             | Value                                                                                |
+| ----------------------------------- | ------------------------------------------------------------------------------------ |
+| Command                             | push                                                                                 |
+| Path to NuGet package(s) to publish | $(Build.BinariesDirectory)/*.nupkg                                                   |
+| Target feed                         | PowerShell (or appropriate feed)                                                     |
+| Allow duplicates to be skipped      | ✓                                                                                    |
+| Run this task                       | Custom conditions                                                                    |
+| Custom condition                    | and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/')) |
+
+Once a given version of a package has been uploaded to the nuget feeds, you can **not** modify or overwrite it.
+
+The custom run condition will ensure this only publishes to the feed when the source branch is a /release/* branch.

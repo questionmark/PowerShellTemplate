@@ -1,4 +1,4 @@
-﻿# ModuleBase\tests
+﻿# Tests
 
 Contains Pester tests for PowerShell code in the module, and a Module.Tests.ps1 file. 
 The module tests file runs ScriptAnalyzer tests against the module.

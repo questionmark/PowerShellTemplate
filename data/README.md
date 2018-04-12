@@ -1,4 +1,4 @@
-﻿# ModuleBase\data
+﻿# Data Files
 
 The data directory is optional, and is used to store files that are not a functional part of the module.
 

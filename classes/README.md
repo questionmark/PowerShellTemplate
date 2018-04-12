@@ -1,4 +1,4 @@
-﻿# ModuleBase\classes
+﻿# Classes
 
 Contains classes, enums, and other prerequisites for the module (e.g. #using statements, constant variables, initialization code).
 
