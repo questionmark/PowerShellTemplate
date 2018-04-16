@@ -15,15 +15,15 @@ Describe "ModuleFileType" {
         $TestCases = @(
             @{
                 Number = '0'
-                Result = "Private"
+                Result = "Class"
             }
             @{
                 Number = '1'
-                Result = "Public"
+                Result = "Private"
             }
             @{
                 Number = '2'
-                Result = "Class"
+                Result = "Public"
             }
             @{
                 Number = '4'

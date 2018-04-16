@@ -6,7 +6,7 @@
         .Description
             Using AST, extracts all function definitions from specified files, and create
             a file per function within the module directory provided. This does not currently
-            rewrite the specified file to import the module, nor remove the existing functions.
+            rewrite the specified file in any way.
 
         .Link
             GetScriptFunctions

@@ -5,13 +5,25 @@
     RequiredModules        = @()
 
     # Functions to export. Populated by Optimize-Module during the build step.
+    # For best performance, do not use wildcards and do not delete this entry!
+    # Use an empty array if there is nothing to export.
     FunctionsToExport      = @()
+
+    # Cmdlets to export.
+    # For best performance, do not use wildcards and do not delete this entry!
+    # Use an empty array if there is nothing to export.
+    CmdletsToExport      = @()
+
+    # Aliases to export.
+    # For best performance, do not use wildcards and do not delete this entry!
+    # Use an empty array if there is nothing to export.
+    AliasesToExport      = @()
 
     # ID used to uniquely identify this module
     GUID                   = 'af8481bc-5027-4bbf-a8bf-42ccadd4c885'
     Description            = 'The Questionmark PowerShell Template Module'
 
-    # The main script module that is automatically loaded as part of this module
+    # The main script or binary module that is automatically loaded as part of this module
     RootModule             = 'PowerShellTemplate.psm1'
 
     # Common stuff for all our modules:

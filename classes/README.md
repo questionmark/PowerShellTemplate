@@ -7,8 +7,8 @@ This allows control of prerequisites, as in the case of ModuleFileClass which re
 
 ## Examples
 
-- #using statements to load enums etc from another module
-- Parameters for use within the module (e.g. Questionmark.Azure.Provisioning)
+- `#using` statements to load enums etc from another module
+- param() block defining settable module variables (e.g. Questionmark.Azure.Provisioning)
+- Constants for use within the module (e.g. Questionmark.EnvironmentVariables)
 - Enums used for validation / tab-completion in function parameters (e.g. Questionmark.Configuration)
 - Classes used for DSC (e.g. UpdateServicesServerDsc)
-- Constants for use within the module (e.g. Questionmark.Legacy)

@@ -5,7 +5,19 @@
     RequiredModules        = @()
 
     # Functions to export. Populated by Optimize-Module during the build step.
+    # For best performance, do not use wildcards and do not delete this entry!
+    # Use an empty array if there is nothing to export.
     FunctionsToExport      = @()
+
+    # Cmdlets to export.
+    # For best performance, do not use wildcards and do not delete this entry!
+    # Use an empty array if there is nothing to export.
+    CmdletsToExport      = @()
+
+    # Aliases to export.
+    # For best performance, do not use wildcards and do not delete this entry!
+    # Use an empty array if there is nothing to export.
+    AliasesToExport      = @()
 
     # ID used to uniquely identify this module
     GUID                   = 'db71308b-0ab1-443c-9dbb-69bed337a806'

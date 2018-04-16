@@ -10,9 +10,9 @@ Describe "GetScriptFunctions" {
             $Parameters['ScriptPath'].Attributes.Mandatory | Should Be $true
         }
 
-        It "Allows Paths to be piped in as ScriptPath or FullName" {
+        It "Allows Paths to be piped in as ScriptPath or PSPath" {
             $Parameters['ScriptPath'].Attributes.ValueFromPipelineByPropertyName | Should Be $true
-            $Parameters['ScriptPath'].Attributes.AliasNames | Should Be 'FullName'
+            $Parameters['ScriptPath'].Attributes.AliasNames | Should Be 'PSPath'
         }
     }
 

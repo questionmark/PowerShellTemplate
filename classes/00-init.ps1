@@ -1,5 +1,4 @@
 # We can add using statements here, to utilize unexposed types from other modules
-# TODO: add example of usage without referencing QM
 
 # As we know 00-init will probably be added to the top of the psm1 by Optimize-Module, we can add other dependencies for the module here.
 Update-TypeData -TypeName HashTable -MemberType ScriptMethod -MemberName Where -Force -Value {

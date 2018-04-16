@@ -1,6 +1,6 @@
 ﻿enum ModuleFileType {
-    Private = 0
-    Public  = 1
-    Class   = 2
+    Class   = 0
+    Private = 1
+    Public  = 2
     Data    = 4
 }

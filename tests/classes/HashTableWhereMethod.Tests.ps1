@@ -20,4 +20,8 @@ Describe "HashTable Where-like MethodProperty" {
         $HashTable.Where{$_.Name -like '*2'}.Count | Should Be ($HashTable.Name -like '*2').Count
         $HashTable.Where{$_.Name -like '*3'}.Count | Should Be ($HashTable.Name -like '*3').Count
     }
+
+    It "Should return a HashTable" {
+        $HashTable.Where{$_.Name -like '*'} | Should BeOfType HashTable
+    }
 }

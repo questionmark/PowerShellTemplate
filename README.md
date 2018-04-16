@@ -4,23 +4,26 @@ This is an example module, following some good practices.
 
 ## How to use this Exemplar
 
+For the sake of examples below, we will have cloned this repository to `~\Git\PowerShellTemplate`, and be creating a module named "TestModule" at the path `~\Git\TestModule`.
+
 ### Creating a New Module
 
-To build this module, run `Optimize-Module` on the module directory.
+Depending on the availability of `dotnet`, you can either use `dotnet new` or perform a naive clone of the directory (replacing all instances of 'CloneModule' with your module name, and editing the GUIDs and other fields in the PSD1 appropriately).
 
-You should then be able to import the module, and run `New-PSModule` which clones the base structure of an example module.
-
-You can use this as follows:
+If you have `dotnet` installed, you can run the following code:
 
 ```PowerShell
-New-PSModule -Name Questionmark.Test.Module -Path ~\Git\
+dotnet new --install ~\Git\PowerShellTemplate\
+dotnet new PowerShellModule --ModuleName TestModule --Output ~\Git\TestModule
 ```
 
-Depending on the availability of `dotnet`, this will either use `dotnet new` or perform a naive clone of the directory (replacing all instances of 'CloneModule' with your module name, and editing the PSD1 appropriately).
+You can also specify some module details by passing the following options:
 
-Alternatively, you can manually clone the folder structure (excluding `.template.config`) from `.\data\CloneModule`.
-
-You will then need to manually edit the PSD1 values, and replace all references to CloneModule with your preferred module name.
+|    Option     |                Description                |
+| ------------- | ----------------------------------------- |
+| --Author      | Module author, in the PSD1                |
+| --Company     | Company and Copyright fields, in the PSD1 |
+| --Description | Description field, in the PSD1            |
 
 ### Populating the Module with Functions
 
@@ -31,12 +34,12 @@ We recommend creating a single `FunctionName.ps1` file per function, laid out in
 To simplify conversion from a lengthy PowerShell file containing multiple functions to a module, you can call `ConvertFrom-FunctionFile` to create separate files for each function in a given file.
 
 ```PowerShell
-ConvertFrom-FunctionFile -Path ~\Git\RefactorProject\SomeScript.ps1 -ModulePath ~\Git\Questionmark.Test.Module
+ConvertFrom-FunctionFile -Path ~\Git\RefactorProject\SomeScript.ps1 -ModulePath ~\Git\TestModule
 ```
 
 ### Classes and Initialization
 
-Classes, enums, and other module prerequisites should be placed in the classes folder. We name these with a digit-prefix (e.g. `00-init.ps1`, `10-ClassDependency.ps1`, `20-SampleClass.ps1`, etc), such that they can be prioritized appropriately and will be added in order at the top of the resultant psm1 file.
+Classes, enums, and other module prerequisites should be placed in the classes folder. We name these with a digit-prefix (e.g. `00-init.ps1`, `10-ClassDependency.ps1`, `20-SampleClass.ps1`, etc), such that they can be ordered appropriately, and added to the top of the resultant psm1 file.
 
 ## Writing PowerShell Modules
 
@@ -89,174 +92,33 @@ I/O:
    \--README.md                 # A readme, containing useful information about the module
 ```
 
-## Testing PowerShell Modules
+## Writing Tests for PowerShell Modules
 
-Forge uses Pester for PowerShell unit-testing.
+You should use Pester for PowerShell unit-testing.
 
 At a minimum, each function must have tests for every ParameterSet, and the module should run the shared ScriptAnalyzer tests.
 
 ## Building PowerShell Modules
 
-### vNext Build Variables
+This section covers building the module locally. For CI builds in Visual Studio Online, please refer to [VSO Builds](.\VSO_Builds.md)
 
-vNext builds support lots of predefined variables in build tasks. 
-
-Use of these variables varies between build task settings and PowerShell environments.
-
-|          vNext Build           |      PowerShell Environment      |                     Notes                      |
-| ------------------------------ | -------------------------------- | ---------------------------------------------- |
-| $(Build.SourcesDirectory)      | $env:Build_SourcesDirectory      | Location of files downloaded in Get sources    |
-| $(Build.BuildDefinitionName)   | $env:Build_BuildDefinitionName   | Name of the vNext build                        |
-| $(Build.BuildNumber)           | $env:Build_BuildNumber           | This is the build number set in Options        |
-| $(Build.StagingDirectory)      | $env:Build_StagingDirectory      | Synonymous with Build.ArtifactStagingDirectory |
-| $(Build.SourceBranch)          | $env:Build_SourceBranch          | Full source branch. Useful to see build type   |
-| $(Common.TestResultsDirectory) | $env:Common_TestResultsDirectory |                                                |
-
-Further information is available on [docs.microsoft.com](https://docs.microsoft.com/en-us/vsts/build-release/concepts/definitions/build/variables?tabs=batch&view=vsts)
-
-### Building the Module with vNext
-
-An example build is available in [Builds\Platform\PowerShellTemplate](https://qmdevteam.visualstudio.com/Core/Forge/_build/index?definitionId=1614).
-
-QMBuild is available on hosted build machines and the QM PowerShell feed.  
-
-To build and sign the module, you should create a PowerShell script similar to the following code:
+To build PowerShellTemplate locally, run the following code:
 
 ```PowerShell
-#Requires -Modules QMBuild
-
-Optimize-Module -Path $env:Build_SourcesDirectory -Destination $env:Build_StagingDirectory -ModuleVersion $env:Build_BuildNumber
-Get-ChildItem $env:Build_StagingDirectory -Recurse | Add-QMSignatureToScript
+Optimize-Module -Path $ModulePath -Output $ModulePath\$Version -ModuleVersion $Version
 ```
 
-Forge has created a task group that handles this, titled `Build PowerShell Module`. It contains a Build Module(s) and Sign step.
+## Testing PowerShell Modules
 
-### Unit Testing during vNext Builds
-
-For this, you can either create a PowerShell script and run it from a script-step, or use the [Pester Test Runner Build Task](https://marketplace.visualstudio.com/items?itemName=richardfennellBM.BM-VSTS-PesterRunner-Task).
-
-#### Custom Script
-
-You can run Pester manually by creating a PowerShell build task and entering code similar to the following:
+To test a module locally, you can run the following code:
 
 ```PowerShell
-$PesterParameters = @{
-    Script = "$($env:Build_SourcesDirectory)\Tests"
-    OutputFile = "$($env:Common_TestResultsDirectory)\Test-$($env:Build_DefinitionName)_$($env:Build_BuildNumber).xml"
-    CodeCoverage = (Get-ChildItem $($env:Build_StagingDirectory) -Filter *.psm1).FullName
-    CodeCoverageOutputFile = "$($env:Common_TestResultsDirectory)\Coverage-$($env:Build_DefinitionName)_$($env:Build_BuildNumber).xml"
-    CodeCoverageOutputFileFormat = 'JaCoCo'
-    PassThru = $true
+Import-Module $ModulePath
+
+$TestParameters = @{
+    Script = $ModulePath\tests
+    CodeCoverage = (Get-ChildItem $ModulePath\$Version -Filter *.psm1).FullName
 }
 
-$Result = Invoke-Pester @PesterParameters
-
-exit $Result.FailedCount
+Invoke-Pester @TestParameters
 ```
-
-#### Pester Test Runner
-
-You can also use the pre-made build task. Configure it as follows:
-
-| Setting            | Value                                                                                    |
-| ------------------ | ---------------------------------------------------------------------------------------- |
-| Scripts Folder     | $(Build.SourcesDirectory)\Tests                                                          |
-| Results File       | $(Common.TestResultsDirectory)\Test-$(Build.DefinitionName)_$(Build.BuildNumber).xml     |
-
-If you have specified an output file, you can then add the test results to the build by using the `Publish Test Results to VSTS/TFS` build task. 
-
-After adding the `Publish Test Results` build task, configure it as follows:
-
-| Setting            | Value                                                                   |
-| ------------------ | ----------------------------------------------------------------------- |
-| Test result format | NUnit                                                                   |
-| Test results files | **\Test-*.xml                                                           |
-| Search Folder      | $(Common.TestResultsDirectory)                                          |
-| Run this task      | Even if a previous task has failed, unless the deployment was cancelled |
-
-Forge has created a task group that handles this, titled `Test PowerShell Module`. It contains a Pester Test Runner step, and separate Publish Test Result and Publish Code Coverage Result steps.
-
-### Code Coverage during vNext Builds
-
-If running Pester 4.0.3 or higher, you can specify a CodeCoverageOutputFile, which you can then add to the build using the `Publish Code Coverage Result` build task.
-
-This step is covered within the task group `Test PowerShell Module`.
-
-If using the Pester Test Runner build task separately, you should configure options in the Test Runner step to include the following:
-
-| Setting                   | Value                                                                                    |
-| ------------------------- | ---------------------------------------------------------------------------------------- |
-| Code Coverage Output File | $(Common.TestResultsDirectory)\Coverage-$(Build.DefinitionName)_$(Build.BuildNumber).xml |
-| Pester Version            | 4.3.1                                                                                    |
-| Force the use of a Pester Module shipped within this task | ✓ |
-
-To upload the file, you should then add the `Publish Code Coverage Result` step to your build, with the following options:
-
-| Setting            | Value                                         |
-| ------------------ | --------------------------------------------- |
-| Code coverage tool | JaCoCo                                        |
-| Summary file       | Path set in `Code Coverage Output File` above |
-
-### Packaging Artifacts
-
-Forge has created a task group that handles these steps, titled `Publish PowerShell Module`. It packages the module, and publishes the zip to the build - only publishing the nupkg if it's a release branch.
-
-#### ZIP
-
-Creating an archive of the module is simple. 
-
-```PowerShell
-[IO.DirectoryInfo]$Module = $($env:Build_StagingDirectory)\$ModuleName
-Compress-Archive -Path $Module.FullName -DestinationPath ("$($env:Build_StagingDirectory)\" + $Module.Name + '_' + $(env:Build_BuildNumber) + ".zip")
-```
-
-#### NUPKG 
-
-Creating an installable nupkg is more involved. We recommend registering a local package source temporarily, and using the PowerShellGet `Publish-Module` function to create the nupkg there.
-
-```PowerShell
-#Requires -Modules PackageManagement, PowerShellGet
-
-$RepoName = (New-Guid).Guid
-$Location = $($env:Build_BinariesDirectory)
-
-if (-not [bool](Get-PackageSource -Location $Location)) {
-    Register-PackageSource -Name $RepoName -Location $Location -ProviderName PowerShellGet
-}
-
-[IO.DirectoryInfo]$Module = $($env:Build_StagingDirectory)\$ModuleName
-Publish-Module -Path $Module -Repository $RepoName
-
-Unregister-PackageSource -Location $Location
-```
-
-### Publishing Artifact
-
-To publish the built artifacts to the build, add a `Publish Build Artifacts` build task to the build.
-
-Configure it with the following options:
-
-| Setting                   | Value                                         |
-| ------------------------- | --------------------------------------------- |
-| Path to Publish           | $(Build.StagingDirectory)                     |
-| Artifact Name             | Module                                        |
-| Artifact publish location | Visual Studio Team Services/TFS               |
-
-You can also configure this to publish to a file share by changing the `Artifact publish location`.
-
-### Publishing to Nuget Feed
-
-To publish NUPKG files to a release feed from a VSTS build, we suggest using the `NuGet` build task.
-
-| Setting                             | Value                                                                                |
-| ----------------------------------- | ------------------------------------------------------------------------------------ |
-| Command                             | push                                                                                 |
-| Path to NuGet package(s) to publish | $(Build.BinariesDirectory)/*.nupkg                                                   |
-| Target feed                         | PowerShell (or appropriate feed)                                                     |
-| Allow duplicates to be skipped      | ✓                                                                                    |
-| Run this task                       | Custom conditions                                                                    |
-| Custom condition                    | and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/')) |
-
-Once a given version of a package has been uploaded to the nuget feeds, you can **not** modify or overwrite it.
-
-The custom run condition will ensure this only publishes to the feed when the source branch is a /release/* branch.
