@@ -16,11 +16,11 @@
             ],
             "exclude": [
                 ".template.config/**/*",
+                "data/**/.template.config/**/*",
                 ".git/**/*"
             ],
             "rename": {
-                "data/module.md": "README.md",
-                "tests/PowerShellTemplate.Tests.ps1": "tests/PowerShellTemplate.Tests.ps1"
+                "data/module.md": "README.md"
             }
         }
     ],

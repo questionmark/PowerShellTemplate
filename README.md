@@ -10,20 +10,24 @@ For the sake of examples below, we will have cloned this repository to `~\Git\Po
 
 Depending on the availability of `dotnet`, you can either use `dotnet new` or perform a naive clone of the directory (replacing all instances of 'CloneModule' with your module name, and editing the GUIDs and other fields in the PSD1 appropriately).
 
+The blank template accepts several options.
+
+|    Option     |                Description                |
+| ------------- | ----------------------------------------- |
+| --ModuleName  | Name of the new module                    |
+| --Author      | Module author, in the PSD1                |
+| --Company     | Company and Copyright fields, in the PSD1 |
+| --Description | Description field, in the PSD1            |
+| --output      | Path to output. Defaults to PWD.          |
+
 If you have `dotnet` installed, you can run the following code:
 
 ```PowerShell
 dotnet new --install ~\Git\PowerShellTemplate\
-dotnet new PowerShellModule --ModuleName TestModule --Output ~\Git\TestModule
+dotnet new PowerShellModule --ModuleName TestModule --Author $env:UserName --Company $CompanyName --Description $DescriptionOfModule --output ~\Git\TestModule
 ```
 
-You can also specify some module details by passing the following options:
-
-|    Option     |                Description                |
-| ------------- | ----------------------------------------- |
-| --Author      | Module author, in the PSD1                |
-| --Company     | Company and Copyright fields, in the PSD1 |
-| --Description | Description field, in the PSD1            |
+> Please note that dotnet is case sensitive, so --Output will fail to be parsed.
 
 ### Populating the Module with Functions
 
