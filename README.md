@@ -4,7 +4,7 @@ This is an example module, following some good practices.
 
 ## How to use this Exemplar
 
-For the sake of examples below, we will have cloned this repository to `~\Git\PowerShellTemplate`, and be creating a module named "TestModule" at the path `~\Git\TestModule`.
+For the sake of examples below, we will have cloned this repository to `C:\Source\PowerShellTemplate`, and be creating a module named "TestModule" at the path `C:\Source\TestModule`.
 
 ### Creating a New Module
 
@@ -20,14 +20,16 @@ The blank template accepts several options.
 | --Description | Description field, in the PSD1            |
 | --output      | Path to output. Defaults to PWD.          |
 
-If you have `dotnet` installed, you can run the following code:
+If you have `dotnet` version 2.0 or above installed, you can run the following code:
 
 ```PowerShell
-dotnet new --install ~\Git\PowerShellTemplate\
-dotnet new PowerShellModule --ModuleName TestModule --Author $env:UserName --Company $CompanyName --Description $DescriptionOfModule --output ~\Git\TestModule
+dotnet new --install C:\Source\PowerShellTemplate\
+dotnet new PowerShellModule --ModuleName TestModule --Author $env:UserName --Company $CompanyName --Description $DescriptionOfModule --output C:\Source\TestModule
 ```
 
 > Please note that dotnet is case sensitive, so --Output will fail to be parsed.
+
+If you don't have dotnet installed, you can install the dotnet SDK for version 2.0 or above.
 
 ### Populating the Module with Functions
 
@@ -38,7 +40,7 @@ We recommend creating a single `FunctionName.ps1` file per function, laid out in
 To simplify conversion from a lengthy PowerShell file containing multiple functions to a module, you can call `ConvertFrom-FunctionFile` to create separate files for each function in a given file.
 
 ```PowerShell
-ConvertFrom-FunctionFile -Path ~\Git\RefactorProject\SomeScript.ps1 -ModulePath ~\Git\TestModule
+ConvertFrom-FunctionFile -Path C:\Source\RefactorProject\SomeScript.ps1 -ModulePath C:\Source\TestModule
 ```
 
 ### Classes and Initialization
@@ -109,7 +111,7 @@ This section covers building the module locally. For CI builds in Visual Studio 
 To build PowerShellTemplate locally, run the following code:
 
 ```PowerShell
-Optimize-Module -Path $ModulePath -Output $ModulePath\$Version -ModuleVersion $Version
+Optimize-Module -Path C:\Source\TestModule -Output C:\Source\TestModule\$Version -ModuleVersion $Version
 ```
 
 ## Testing PowerShell Modules
@@ -117,11 +119,11 @@ Optimize-Module -Path $ModulePath -Output $ModulePath\$Version -ModuleVersion $V
 To test a module locally, you can run the following code:
 
 ```PowerShell
-Import-Module $ModulePath
+Import-Module C:\Source\TestModule
 
 $TestParameters = @{
-    Script = $ModulePath\tests
-    CodeCoverage = (Get-ChildItem $ModulePath\$Version -Filter *.psm1).FullName
+    Script = C:\Source\TestModule\tests
+    CodeCoverage = (Get-ChildItem C:\Source\TestModule\$Version -Filter *.psm1).FullName
 }
 
 Invoke-Pester @TestParameters
