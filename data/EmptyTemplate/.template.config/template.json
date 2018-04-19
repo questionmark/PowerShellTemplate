@@ -12,13 +12,11 @@
             "source": "../../",
             "target": "./",
             "include": [
-                "**/*"
-            ],
-            "exclude": [
-                ".template.config/**/*",
-                ".git/**/*",
-                "**/README.md",
-                "**/*.ps1"
+                "**/placeholder",
+                "PowerShellTemplate.psd1",
+                "build.psd1",
+                "tests/PowerShellTemplate.Tests.ps1",
+                "data/module.md"
             ],
             "rename": {
                 "data/module.md": "README.md"
@@ -49,14 +47,6 @@
     },
     "guids": [
         "af8481bc-5027-4bbf-a8bf-42ccadd4c885"
-    ],
-    "primaryOutputs": [
-        {"path": "./classes/"},
-        {"path": "./tests/classes/"},
-        {"path": "./private/"},
-        {"path": "./tests/private/"},
-        {"path": "./public/"},
-        {"path": "./tests/public/"}
     ],
     "placeholderFilename": "placeholder"
 }
