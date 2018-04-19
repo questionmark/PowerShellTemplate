@@ -36,57 +36,60 @@
         }
     }
 
-    # We can test the output of this part of the function on any system, though
-    Context "Creating a new module without dotnet new" {
-        Mock Get-Command -ParameterFilter {$Name -eq 'dotnet'} -ModuleName PowerShellTemplate -MockWith {}
-        $ClonePath = Join-Path (Get-Module 'PowerShellTemplate').ModuleBase "\data\CloneModule"
-        $Json = Get-Content $ClonePath\.template.config\template.json | ConvertFrom-Json
+    # We can test the output if dotnet is available, though.
+    if (Get-Command -Name dotnet -ErrorAction SilentlyContinue) {
+        Context "Creating a new module dotnet new" {
+            Mock Get-Command -ParameterFilter {$Name -eq 'dotnet'} -ModuleName PowerShellTemplate -MockWith {}
+            $ClonePath = Join-Path (Get-Module 'PowerShellTemplate').ModuleBase 'data\EmptyTemplate'
+            $Json = Get-Content $ClonePath\.template.config\template.json | ConvertFrom-Json
 
-        $ModuleName = 'TestModule'
+            $ModuleName = 'TestModule'
 
-        New-PSModule -ModuleName $ModuleName -Path $TestDrive -Author 'TestAuthor' -Company 'TestCompany'
-        $ModulePath = Join-Path $TestDrive $ModuleName
+            New-PSModule -ModuleName $ModuleName -Path $TestDrive -Author 'TestAuthor' -Company 'TestCompany'
+            $ModulePath = Join-Path $TestDrive $ModuleName
 
-        It "Copies files from the CloneModule" {
-            Test-Path $ModulePath | Should Be $true
-        }
+            It "Creates a new module in the Output directlry" {
+                Test-Path $ModulePath | Should Be $true
+            }
 
-        It "Removes the '.template.config' directory, and all placeholder files" {
-            Test-Path "$ModulePath\.template.config" | Should Be $False
-            Get-ChildItem $ModulePath -Filter placeholder -Recurse | Should BeNullOrEmpty
-        }
+            It "Does not copy the '.template.config' or '.git' directories, or any placeholder files" {
+                Test-Path "$ModulePath\.git" | Should Be $False
+                Test-Path "$ModulePath\.template.config" | Should Be $False
+                Get-ChildItem $ModulePath -Filter placeholder -Recurse | Should BeNullOrEmpty
+            }
 
-        It "Renames files from CloneModule to '$ModuleName'" {
-            Get-ChildItem $ModulePath -Filter CloneModule -Recurse | Should BeNullOrEmpty
-            (Get-ChildItem $ModulePath -Filter "$ModuleName*" -Recurse).Count | Should -BeGreaterThan 0
-        }
+            It "Renames files from PowerShellTemplate to '$ModuleName'" {
+                Get-ChildItem $ModulePath -Filter PowerShellTemplate -Recurse | Should BeNullOrEmpty
+                (Get-ChildItem $ModulePath -Filter "$ModuleName*" -Recurse).Count | Should -BeGreaterThan 0
+            }
 
-        $PSD1 = Import-PowerShellDataFile "$ModulePath\$ModuleName.psd1"
-        It "Updates the PSD1 with a new guid that is not '$($Json.guids[0])'" {
-            $PSD1.GUID | Should Not Be $Json.guids[0]
-        }
+            $PSD1 = Import-PowerShellDataFile "$ModulePath\$ModuleName.psd1"
+            It "Updates the PSD1 with a new guid that is not '$($Json.guids[0])'" {
+                $PSD1.GUID | Should Not Be $Json.guids[0]
+            }
 
-        It "Updates the PSD1 with the author parameter" {
-            $PSD1.Author | Should Not Be $Json.Symbols.Author.replaces
-            $PSD1.Author | Should Be 'TestAuthor'
-        }
+            It "Updates the PSD1 with the author parameter" {
+                $PSD1.Author | Should Not Be $Json.Symbols.Author.replaces
+                $PSD1.Author | Should Be 'TestAuthor'
+            }
 
-        It "Updates the PSD1 with the company parameter" {
-            $PSD1.CompanyName | Should Not Be $Json.Symbols.Company.replaces
-            $PSD1.CompanyName | Should Be 'TestCompany'
-        }
+            It "Updates the PSD1 with the company parameter" {
+                $PSD1.CompanyName | Should Not Be $Json.Symbols.Company.replaces
+                $PSD1.CompanyName | Should Be 'TestCompany'
+            }
 
-        Remove-Item $ModulePath -Recurse -Force
-        New-PSModule -ModuleName $ModuleName -Path $TestDrive
-        $PSD1 = Import-PowerShellDataFile "$ModulePath\$ModuleName.psd1"
-        It "Updates the PSD1 with '`$env:UserName' as the author name when otherwise unspecified" {
-            $PSD1.Author | Should Not Be $Json.Symbols.Author.replaces
-            $PSD1.Author | Should Be $env:UserName
-        }
+            Remove-Item $ModulePath -Recurse -Force
+            New-PSModule -ModuleName $ModuleName -Path $TestDrive
+            $PSD1 = Import-PowerShellDataFile "$ModulePath\$ModuleName.psd1"
+            It "Updates the PSD1 with '`$env:UserName' as the author name when otherwise unspecified" {
+                $PSD1.Author | Should Not Be $Json.Symbols.Author.replaces
+                $PSD1.Author | Should Be $env:UserName
+            }
 
-        It "Updates the PSD1 with 'Questionmark Computing Limited' as the company name when otherwise unspecified" {
-            $PSD1.CompanyName | Should Not Be $Json.Symbols.Company.replaces
-            $PSD1.CompanyName | Should Be 'Questionmark Computing Limited'
+            It "Updates the PSD1 with 'Questionmark Computing Limited' as the company name when otherwise unspecified" {
+                $PSD1.CompanyName | Should Not Be $Json.Symbols.Company.replaces
+                $PSD1.CompanyName | Should Be 'Questionmark Computing Limited'
+            }
         }
     }
 }

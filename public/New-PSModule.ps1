@@ -30,49 +30,20 @@
         [string]$Path
     )
     process {
-        $ClonePath = Join-Path (Get-Module 'PowerShellTemplate').ModuleBase "\data\CloneModule"
         $ModulePath = Join-Path $Path $ModuleName
+
+        if (-not (Get-Command -Name dotnet -ErrorAction SilentlyContinue)) {
+            # This function requires dotnet new to function.
+            throw "New-PSModule requires dotnet. Please ensure it is available on PATH before retrying."
+        }
 
         if (-not (Test-Path $ModulePath)) {
             $null = New-Item -Path $ModulePath -ItemType Directory -Force
         }
+
+        # Because mocking direct calls is unsupported, we have wrapped dotnet in a private function, so we can test it
+        $null = InvokeDotnetNew --install (Get-Module 'PowerShellTemplate').ModuleBase
+        InvokeDotnetNew PowerShellModule --output $ModulePath --ModuleName $ModuleName --Author $AuthorName --Company $CompanyName | Write-Verbose
         
-        if (Get-Command -Name dotnet -ErrorAction SilentlyContinue) {
-            # Because mocking direct calls is unsupported, we have wrapped dotnet in a private function, so we can test it
-            $null = InvokeDotnetNew --install $ClonePath
-            InvokeDotnetNew PowerShellModule --output $ModulePath --ModuleName $ModuleName --Author $AuthorName --Company $CompanyName | Write-Verbose
-        } else {
-            # Copy files
-            Copy-Item -Path $ClonePath\* -Container -Destination $ModulePath -Force -Recurse
-
-            # Remove placeholders and other unnecessary files
-            $FilesToRemove = @('.template.config', 'placeholder')
-            Get-ChildItem -Path $ModulePath -Recurse -Include $FilesToRemove | Remove-Item -Recurse -Force
-
-            # Rename ModuleName files
-            Get-ChildItem -Path $ModulePath -Filter 'CloneModule*' -Recurse | ForEach-Object { 
-                Rename-Item -Path $PSItem.FullName -NewName $PSItem.Name.Replace('CloneModule', $ModuleName)
-            }
-
-            # Edit PSD1 inelegantly
-            $Psd1File = Join-Path $ModulePath "$($ModuleName).psd1"
-            $Json = Get-Content $ClonePath\.template.config\template.json | ConvertFrom-Json
-
-            @(
-                @{
-                    String      = $Json.guids[0]
-                    Replacement = (New-Guid).Guid
-                }
-                # This assumes that there's a named parameter for each symbol in the template file
-                foreach ($type in $Json.Symbols.PsObject.Properties.Name) {
-                    @{
-                        String      = $Json.Symbols.$type.replaces
-                        Replacement = if ($Set = (Get-Variable -Name $Type -ErrorAction SilentlyContinue).Value) {$Set} else {$Json.Symbols.$type.DefaultValue}
-                    }
-                }
-            ) | ForEach-Object {
-                (Get-Content -Path $Psd1File).Replace($_.String, $_.Replacement) | Set-Content -Path $Psd1File
-            }
-        }
     }
 }

@@ -1,26 +1,26 @@
-﻿# CloneModule
+﻿# PowerShellTemplate
 
-Description of CloneModule's purpose
+Description of PowerShellTemplate's purpose
 
 ## Requirements
 
-CloneModule requires the following modules to be available:
+PowerShellTemplate requires the following modules to be available:
 
 | ModuleName | ModuleVersion |
 | ---------- | ------------- |
 |            |               |
 
-## Building CloneModule
+## Building PowerShellTemplate
 
-To build CloneModule locally, run the following code:
+To build PowerShellTemplate locally, run the following code:
 
 ```PowerShell
 Optimize-Module -Path $ModulePath -Output $ModulePath\$Version -ModuleVersion $Version
 ```
 
-## Testing CloneModule
+## Testing PowerShellTemplate
 
-To test CloneModule locally, run the following code:
+To test PowerShellTemplate locally, run the following code:
 
 ```PowerShell
 Import-Module $ModulePath

@@ -1,0 +1,62 @@
+﻿{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "James Ruskin",
+    "classifications": [
+        "Common"
+    ],
+    "name": "PowerShell Module Template",
+    "identity": "Questionmark.PowerShell.Template.Module",
+    "shortName": "PowerShellModule",
+    "sources": [
+        {
+            "source": "../../",
+            "target": "./",
+            "include": [
+                "**/*"
+            ],
+            "exclude": [
+                ".template.config/**/*",
+                ".git/**/*",
+                "**/README.md",
+                "**/*.ps1"
+            ],
+            "rename": {
+                "data/module.md": "README.md"
+            }
+        }
+    ],
+    "symbols": {
+        "ModuleName": {
+            "type": "parameter",
+            "FileRename": "PowerShellTemplate",
+            "replaces": "PowerShellTemplate"
+        },
+        "Author": {
+            "type": "parameter",
+            "defaultValue": "Team Forge",
+            "replaces": "Team Forge"
+        },
+        "Company": {
+            "type": "parameter",
+            "defaultValue": "Questionmark Computing Limited",
+            "replaces": "Questionmark Computing Limited"
+        },
+        "Description": {
+            "type": "parameter",
+            "defaultValue": "The Questionmark PowerShell Module",
+            "replaces": "The Questionmark PowerShell Template Module"
+        }
+    },
+    "guids": [
+        "af8481bc-5027-4bbf-a8bf-42ccadd4c885"
+    ],
+    "primaryOutputs": [
+        {"path": "./classes/"},
+        {"path": "./tests/classes/"},
+        {"path": "./private/"},
+        {"path": "./tests/private/"},
+        {"path": "./public/"},
+        {"path": "./tests/public/"}
+    ],
+    "placeholderFilename": "placeholder"
+}

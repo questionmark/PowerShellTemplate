@@ -1,0 +1,53 @@
+﻿{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "James Ruskin",
+    "classifications": [
+        "Common"
+    ],
+    "name": "PowerShell Module Template - Example",
+    "identity": "Questionmark.PowerShell.Template.Module.Example",
+    "shortName": "PowerShellExampleModule",
+    "sources": [
+        {
+            "source": "../../",
+            "target": "./",
+            "include": [
+                "**/*"
+            ],
+            "exclude": [
+                ".template.config/**/*",
+                ".git/**/*"
+            ],
+            "rename": {
+                "data/module.md": "README.md",
+                "tests/PowerShellTemplate.Tests.ps1": "tests/PowerShellTemplate.Tests.ps1"
+            }
+        }
+    ],
+    "symbols": {
+        "ModuleName": {
+            "type": "parameter",
+            "FileRename": "PowerShellTemplate",
+            "replaces": "PowerShellTemplate"
+        },
+        "Author": {
+            "type": "parameter",
+            "defaultValue": "Team Forge",
+            "replaces": "Team Forge"
+        },
+        "Company": {
+            "type": "parameter",
+            "defaultValue": "Questionmark Computing Limited",
+            "replaces": "Questionmark Computing Limited"
+        },
+        "Description": {
+            "type": "parameter",
+            "defaultValue": "The Questionmark PowerShell Module",
+            "replaces": "The Questionmark PowerShell Template Module"
+        }
+    },
+    "guids": [
+        "af8481bc-5027-4bbf-a8bf-42ccadd4c885"
+    ],
+    "placeholderFilename": "placeholder"
+}
