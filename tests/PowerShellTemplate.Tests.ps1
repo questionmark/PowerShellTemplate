@@ -1,4 +1,4 @@
-﻿$ModuleUnderTest = Split-Path (Split-Path $PSScriptRoot -Parent) -Leaf
+﻿$ModuleUnderTest = ([IO.FileInfo]$MyInvocation.InvocationName).BaseName.Remove('.Tests')
 
 if (!(Get-Module $ModuleUnderTest -ErrorAction SilentlyContinue)) {
     Import-Module $ModuleUnderTest -Scope Global
