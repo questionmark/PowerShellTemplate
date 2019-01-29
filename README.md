@@ -106,7 +106,7 @@ At a minimum, each function must have tests for every ParameterSet, and the modu
 
 ## Building PowerShell Modules
 
-This section covers building the module locally. For CI builds in Visual Studio Online, please refer to [VSO Builds](.\VSO_Builds.md)
+This section covers building the module locally. For CI builds in Visual Studio Online, please refer to [VSO Builds](./VSO_Builds.md)
 
 To build PowerShellTemplate locally, run the following code:
 
