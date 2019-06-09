@@ -9,7 +9,7 @@
     "shortName": "PowerShellModule",
     "sources": [
         {
-            "source": "../../",
+            "source": "../../../",
             "target": "./",
             "include": [
                 "**/placeholder",
